@@ -4,3 +4,4 @@
 
 /.vs/Movies.API
 /Movies.API/obj
+/Movies.API/bin/Debug/net9.0
