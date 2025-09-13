@@ -5,3 +5,6 @@
 /.vs/Movies.API
 /Movies.API/obj
 /Movies.API/bin/Debug/net9.0
+/.vs/ProjectEvaluation
+/src/Movies.API/bin/Debug/net9.0
+/src/Movies.API/obj
