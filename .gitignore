@@ -8,3 +8,8 @@
 /.vs/ProjectEvaluation
 /src/Movies.API/bin/Debug/net9.0
 /src/Movies.API/obj
+/Movies.Repository/obj
+/src/Movies.Application/obj
+/src/Movies.Domain/obj
+/src/Movies.Infrastructure/obj
+/src/Movies.Repository/obj
