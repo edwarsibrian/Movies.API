@@ -18,4 +18,8 @@
     <Folder Include="Queries\Validators\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Movies.Domain\Movies.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
