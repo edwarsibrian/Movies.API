@@ -1,26 +1,23 @@
-﻿using Movies.Application.Interfaces;
+﻿using Movies.Domain.Common.Interfaces;
 using Movies.Domain.Entities;
-using Movies.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Movies.Infrastructure.Context;
 
 namespace Movies.Repository.Implementations
 {
-    public class GenreRepository //: IGenreRespository
+    public class GenreRepository : IGenreRepository
     {
-        //private ContextInMemory _context;
+        private readonly APIMovieDbContext dbContext;
 
-        //public GenreRepository(ContextInMemory context) 
-        //{
-        //    _context = context;
-        //}
+        public GenreRepository(APIMovieDbContext dbContext)
+        {
+            this.dbContext = dbContext;
+        }
 
-        //public List<Genre> GetAllGenres()
-        //{
-        //    return _context.Genres;
-        //}
+        
+        public async Task CreateAsync(Genre genre, CancellationToken cancellationToken)
+        {
+            await dbContext.Genres.AddAsync(genre, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 }

@@ -1,11 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Movies.Domain.Entities;
 
-namespace Movies.Repository.Context
+namespace Movies.Infrastructure.Context
 {
     public class APIMovieDbContext : DbContext
     {
@@ -16,5 +12,7 @@ namespace Movies.Repository.Context
         protected APIMovieDbContext()
         {
         }
+
+        public DbSet<Genre> Genres { get; set; }
     }
 }

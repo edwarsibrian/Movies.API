@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using Movies.API.Settings;
+using Movies.Infrastructure.Configurations;
+using Movies.Application.Configurations;
 using Movies.Repository.Configurations;
 
 namespace Movies.API.Configurations
@@ -30,8 +32,14 @@ namespace Movies.API.Configurations
                 opt.DefaultExpirationTimeSpan = TimeSpan.FromSeconds(60);
             });
 
+            // Application
+            services.AddApplication();
+
+            // Infrastructure
+            services.AddInfrastructure(configuration);
+
             // Repositories
-            services.AddRepositories(configuration);
+            services.AddRepositories();
 
             // Services
             return services;
