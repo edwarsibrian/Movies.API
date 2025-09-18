@@ -4,3 +4,16 @@
 
 /.vs/Movies.API
 /Movies.API/obj
+/Movies.API/bin/Debug/net9.0
+/.vs/ProjectEvaluation
+/src/Movies.API/bin/Debug/net9.0
+/src/Movies.API/obj
+/Movies.Repository/obj
+/src/Movies.Application/obj
+/src/Movies.Domain/obj
+/src/Movies.Infrastructure/obj
+/src/Movies.Repository/obj
+/src/Movies.Application/bin/Debug/net9.0
+/src/Movies.Domain/bin/Debug/net9.0
+/src/Movies.Infrastructure/bin/Debug/net9.0
+/src/Movies.Repository/bin/Debug/net9.0
