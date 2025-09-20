@@ -40,11 +40,12 @@ This solution follows a **Clean Architecture / Onion Architecture** approach wit
 
 ```mermaid
 graph TD
-    A[Movies.API (Controllers)] -->|Sends Command/Query| B[Application Layer]
-    B -->|Uses Entities & Business Rules| C[Domain Layer]
-    B -->|Requests Data| D[Repository Layer]
-    D -->|Implemented with| E[Infrastructure Layer]
+    A["Movies.API (Controllers)"] -->|Sends Command/Query| B["Application Layer"]
+    B -->|Uses Entities & Business Rules| C["Domain Layer"]
+    B -->|Requests Data| D["Repository Layer"]
+    D -->|Implemented with| E["Infrastructure Layer"]
     E -->|Provides DbContext & Migrations| D
+
 ```
 
 ---
