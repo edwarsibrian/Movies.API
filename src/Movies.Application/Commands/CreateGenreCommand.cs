@@ -3,6 +3,6 @@ using Movies.Domain.Entities;
 
 namespace Movies.Application.Commands
 {
-    public record CreateGenreCommand(string name) : IRequest<Genre>;
+    public record CreateGenreCommand(string genreName) : IRequest<Genre>;
     
 }

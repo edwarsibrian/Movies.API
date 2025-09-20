@@ -18,7 +18,7 @@ namespace Movies.Application.Commands.Handlers
 
         public async Task<Genre> Handle(CreateGenreCommand request, CancellationToken cancellationToken)
         {
-            var genre = mapper.Map<Genre>(request.name);
+            var genre = mapper.Map<Genre>(request.genreName);
             await repository.CreateAsync(genre, cancellationToken);
             return genre;
         }
