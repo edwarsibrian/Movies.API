@@ -5,5 +5,6 @@ namespace Movies.Domain.Common.Interfaces
     public interface IGenreRepository
     {
         Task CreateAsync(Genre genre, CancellationToken cancellationToken);
+        IQueryable<Genre> Query();
     }
 }

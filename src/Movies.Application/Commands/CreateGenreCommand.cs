@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using Movies.Domain.Entities;
+using Movies.Application.DTOs;
 
 namespace Movies.Application.Commands
 {
-    public record CreateGenreCommand(string genreName) : IRequest<Genre>;
+    public record CreateGenreCommand(string genreName) : IRequest<GenreDTO>;
     
 }

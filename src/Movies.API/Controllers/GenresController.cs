@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Movies.Application.Commands;
+using Movies.Application.DTOs;
 using Movies.Application.Queries;
 using Movies.Domain.Entities;
 
@@ -25,9 +26,17 @@ namespace Movies.API.Controllers
 
         [HttpGet("{id:int}", Name = "GetGenreById")]
         [OutputCache(Tags = new[] { CacheKey })]
-        public async Task<ActionResult<Genre>> Get([FromQuery] int id, CancellationToken cancellationToken)
+        public async Task<ActionResult<GenreDTO>> Get([FromQuery] int id, CancellationToken cancellationToken)
         {
             var genres = await mediator.Send(new GetGenreByIdQuery(id), cancellationToken);
+            return Ok(genres);
+        }
+
+        [HttpGet]
+        [OutputCache(Tags = new[] { CacheKey })]
+        public async Task<ActionResult<List<GenreDTO>>> Get(CancellationToken cancellationToken)
+        {
+            var genres = await mediator.Send(new GetGenresQuery(), cancellationToken);
             return Ok(genres);
         }
 
