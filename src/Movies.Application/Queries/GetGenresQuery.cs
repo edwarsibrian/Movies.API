@@ -3,6 +3,6 @@ using Movies.Application.DTOs;
 
 namespace Movies.Application.Queries
 {
-    public record GetGenresQuery() : IRequest<IEnumerable<GenreDTO>>;
+    public record GetGenresQuery(PaginationDTO Pagination) : IRequest<PagedResult<GenreDTO>>;
 
 }
