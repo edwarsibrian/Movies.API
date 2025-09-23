@@ -22,6 +22,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ValidationExceptionMiddleware>();
+app.UseMiddleware<PaginationHeaderMiddleware>();
 
 app.UseHttpsRedirection();
 

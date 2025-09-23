@@ -9,6 +9,7 @@ namespace Movies.Application.Configurations
         {
             CreateMap<string, Genre>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src));
+            CreateMap<Genre, DTOs.GenreDTO>().ReverseMap();
         }
     }
 }

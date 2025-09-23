@@ -1,7 +1,7 @@
 ﻿using MediatR;
-using Movies.Domain.Entities;
+using Movies.Application.DTOs;
 
 namespace Movies.Application.Queries
 {
-    public record GetGenreByIdQuery(int Id) : IRequest<Genre?>;
+    public record GetGenreByIdQuery(int Id) : IRequest<GenreDTO?>;
 }

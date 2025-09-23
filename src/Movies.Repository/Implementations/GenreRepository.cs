@@ -1,4 +1,5 @@
-﻿using Movies.Domain.Common.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using Movies.Domain.Common.Interfaces;
 using Movies.Domain.Entities;
 using Movies.Infrastructure.Context;
 
@@ -18,6 +19,11 @@ namespace Movies.Repository.Implementations
         {
             await dbContext.Genres.AddAsync(genre, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        public IQueryable<Genre> Query()
+        {
+            return dbContext.Genres.AsNoTracking();
         }
     }
 }

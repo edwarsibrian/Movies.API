@@ -22,7 +22,8 @@ namespace Movies.API.Configurations
                 {
                     policy.WithOrigins(corsPolicy)
                           .AllowAnyMethod()
-                          .AllowAnyHeader();
+                          .AllowAnyHeader()
+                          .WithExposedHeaders("TotalRecords");
                 });
             });
 

@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
 using MediatR;
+using Movies.Application.DTOs;
 using Movies.Domain.Common.Interfaces;
 using Movies.Domain.Entities;
 
 namespace Movies.Application.Commands.Handlers
 {
-    public class CreateGenreHandler : IRequestHandler<CreateGenreCommand, Genre>
+    public class CreateGenreHandler : IRequestHandler<CreateGenreCommand, GenreDTO>
     {
         private readonly IGenreRepository repository;
         private readonly IMapper mapper;
@@ -16,11 +17,12 @@ namespace Movies.Application.Commands.Handlers
             this.mapper = mapper;
         }
 
-        public async Task<Genre> Handle(CreateGenreCommand request, CancellationToken cancellationToken)
+        public async Task<GenreDTO> Handle(CreateGenreCommand request, CancellationToken cancellationToken)
         {
             var genre = mapper.Map<Genre>(request.genreName);
             await repository.CreateAsync(genre, cancellationToken);
-            return genre;
+            var genreDto = mapper.Map<GenreDTO>(genre);
+            return genreDto;
         }
     }
 }
