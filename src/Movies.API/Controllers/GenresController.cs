@@ -24,18 +24,22 @@ namespace Movies.API.Controllers
 
         [HttpGet("{id:int}", Name = "GetGenreById")]
         [OutputCache(Tags = new[] { CacheKey })]
-        public async Task<ActionResult<GenreDTO>> Get([FromQuery] int id, CancellationToken cancellationToken)
+        public async Task<ActionResult<GenreDTO>> Get(int id, CancellationToken cancellationToken)
         {
-            var genres = await mediator.Send(new GetGenreByIdQuery(id), cancellationToken);
-            return Ok(genres);
+            var genre = await mediator.Send(new GetGenreByIdQuery(id), cancellationToken);
+            if(genre == null)
+            {
+                return NotFound();
+            }
+            return Ok(genre);
         }
 
         [HttpGet]
-        [OutputCache(Tags = new[] { CacheKey })]
+        [OutputCache(Tags = new[] { CacheKey }, VaryByQueryKeys = new[] { "PageNumber", "RecordsByPage" })]
         public async Task<ActionResult<List<GenreDTO>>> Get([FromQuery] PaginationDTO pagination, CancellationToken cancellationToken)
         {
             var result = await mediator.Send(new GetGenresQuery(pagination), cancellationToken);
-            HttpContext.Items["TotalRecords"] = result.TotalRecords;
+            HttpContext.Response.Headers.Append("TotalRecords", result.TotalRecords.ToString());
             return Ok(result.Items);
         }
 
@@ -45,6 +49,34 @@ namespace Movies.API.Controllers
             var genre = await mediator.Send(command, cancellationToken);
             await outputCacheStore.EvictByTagAsync(CacheKey, cancellationToken);
             return CreatedAtRoute("GetGenreById", new { id = genre.Id }, genre);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateGenreCommand command, CancellationToken cancellationToken)
+        {
+            if (id != command.Id)
+            {
+                return BadRequest("The id in the URL does not match the id in the body.");
+            }
+            var genre = await mediator.Send(command, cancellationToken);
+            if (genre == null)
+            {
+                return NotFound();
+            }
+            await outputCacheStore.EvictByTagAsync(CacheKey, cancellationToken);
+            return NoContent();
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+        {
+            var rowsAffected = await mediator.Send(new DeleteGenreCommand(id), cancellationToken);
+            if (rowsAffected == 0)
+            {
+                return NotFound();
+            }
+            await outputCacheStore.EvictByTagAsync(CacheKey, cancellationToken);
+            return NoContent();
         }
 
     }

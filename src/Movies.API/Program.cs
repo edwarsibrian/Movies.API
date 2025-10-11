@@ -21,14 +21,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<ValidationExceptionMiddleware>();
-app.UseMiddleware<PaginationHeaderMiddleware>();
-
 app.UseHttpsRedirection();
 
 app.UseCors();
 
 app.UseOutputCache();
+
+app.UseMiddleware<ValidationExceptionMiddleware>();
 
 app.UseAuthorization();
 

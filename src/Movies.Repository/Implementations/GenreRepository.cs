@@ -21,9 +21,34 @@ namespace Movies.Repository.Implementations
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        public IQueryable<Genre> Query()
+        public async Task<int> DeleteAsync(int id, CancellationToken cancellationToken)
+        {
+            return await dbContext.Genres
+                .Where(g => g.Id == id)
+                .ExecuteDeleteAsync(cancellationToken);
+        }
+
+        public IQueryable<Genre> GetAll()
         {
             return dbContext.Genres.AsNoTracking();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="genre"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>Returns false if the genre does not exist</returns>
+        public async Task<bool> UpdateAsync(Genre genre, CancellationToken cancellationToken)
+        {
+            bool exists = await dbContext.Genres.AnyAsync(g => g.Id == genre.Id, cancellationToken);
+            if (!exists)
+            {
+                return false;
+            }
+            dbContext.Genres.Update(genre);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return true;
         }
     }
 }
