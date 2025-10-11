@@ -21,13 +21,14 @@ namespace Movies.Application.Queries.Handlers
 
         public async Task<PagedResult<GenreDTO>> Handle(GetGenresQuery request, CancellationToken cancellationToken)
         {
-            var queyable = repository.Query();
+            var queyable = repository.GetAll();
 
             var totalRecords= await queyable.CountAsync(cancellationToken);
 
             //getting items before pagination for header
             var items = await queyable
                 .AsNoTracking()
+                .OrderBy(g => g.Name)
                 .Paginate(request.Pagination)
                 .ProjectTo<GenreDTO>(_mapperConfig)
                 .ToListAsync(cancellationToken);
