@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Movies.Application.Commands;
+using Movies.Application.DTOs;
 using Movies.Domain.Entities;
 
 namespace Movies.Application.Configurations
@@ -15,6 +16,7 @@ namespace Movies.Application.Configurations
                 .ReverseMap();
             CreateMap<UpdateGenreCommand, Genre>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.GenreName));
+            CreateMap<GenreDTO, UpdateGenreCommand>();
         }
     }
 }

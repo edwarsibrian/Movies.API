@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Movies.Application.Commands;
@@ -13,13 +14,14 @@ namespace Movies.API.Controllers
     {
         private readonly IOutputCacheStore outputCacheStore;
         private readonly IMediator mediator;
-
+        private readonly IMapper mapper;
         private const string CacheKey = "GenresCache";
 
-        public GenresController(IOutputCacheStore outputCacheStore, IMediator mediator)
+        public GenresController(IOutputCacheStore outputCacheStore, IMediator mediator, IMapper mapper)
         {
             this.outputCacheStore = outputCacheStore;
             this.mediator = mediator;
+            this.mapper = mapper;
         }
 
         [HttpGet("{id:int}", Name = "GetGenreById")]
@@ -44,20 +46,22 @@ namespace Movies.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CreateGenreCommand command, CancellationToken cancellationToken)
+        public async Task<IActionResult> Post([FromBody] CreateGenreDTO genreDTO, CancellationToken cancellationToken)
         {
+            var command = new CreateGenreCommand(genreDTO.GenreName);
             var genre = await mediator.Send(command, cancellationToken);
             await outputCacheStore.EvictByTagAsync(CacheKey, cancellationToken);
             return CreatedAtRoute("GetGenreById", new { id = genre.Id }, genre);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Put(int id, [FromBody] UpdateGenreCommand command, CancellationToken cancellationToken)
+        public async Task<IActionResult> Put(int id, [FromBody] GenreDTO genreDTO, CancellationToken cancellationToken)
         {
-            if (id != command.Id)
+            if (id != genreDTO.Id)
             {
                 return BadRequest("The id in the URL does not match the id in the body.");
             }
+            var command = mapper.Map<UpdateGenreCommand>(genreDTO);
             var genre = await mediator.Send(command, cancellationToken);
             if (genre == null)
             {

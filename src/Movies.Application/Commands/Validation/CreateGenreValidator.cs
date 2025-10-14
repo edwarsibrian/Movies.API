@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Movies.Application.Common.Validators;
+using Movies.Application.Common.Validation;
 
-namespace Movies.Application.Commands.Validators
+namespace Movies.Application.Commands.Validation
 {
     public class CreateGenreValidator : AbstractValidator<CreateGenreCommand>
     {

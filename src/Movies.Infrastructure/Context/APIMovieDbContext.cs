@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Movies.Domain.Entities;
+using Movies.Infrastructure.Configurations;
 
 namespace Movies.Infrastructure.Context
 {
@@ -13,6 +14,13 @@ namespace Movies.Infrastructure.Context
         {
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfiguration(new ActorConfiguration());
+            base.OnModelCreating(modelBuilder);
+        }
+
         public DbSet<Genre> Genres { get; set; }
+        public DbSet<Actor> Actors { get; set; }
     }
 }
