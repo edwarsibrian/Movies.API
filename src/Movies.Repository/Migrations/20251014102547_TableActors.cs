@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Movies.Infrastructure.Migrations
+namespace Movies.Repository.Migrations
 {
     /// <inheritdoc />
     public partial class TableActors : Migration

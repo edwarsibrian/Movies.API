@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Movies.Domain.Entities;
-using Movies.Infrastructure.Configurations;
+using Movies.Repository.Configurations;
 
-namespace Movies.Infrastructure.Context
+namespace Movies.Repository.Context
 {
     public class APIMovieDbContext : DbContext
     {

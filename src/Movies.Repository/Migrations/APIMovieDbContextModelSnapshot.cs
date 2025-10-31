@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Movies.Infrastructure.Context;
+using Movies.Repository.Context;
 
 #nullable disable
 
-namespace Movies.Infrastructure.Migrations
+namespace Movies.Repository.Migrations
 {
     [DbContext(typeof(APIMovieDbContext))]
     partial class APIMovieDbContextModelSnapshot : ModelSnapshot
