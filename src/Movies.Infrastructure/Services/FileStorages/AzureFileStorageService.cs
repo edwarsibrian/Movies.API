@@ -1,27 +1,65 @@
-﻿using Movies.Application.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Azure.Storage.Blobs;
+using Microsoft.Extensions.Options;
+using Movies.Application.Interfaces;
+using Movies.Infrastructure.Settings;
 
 namespace Movies.Infrastructure.Services.FileStorages
 {
     public class AzureFileStorageService : IFileStorageService
     {
-        public Task DeleteFileAsync(string filePath)
+        private readonly BlobServiceClient _blobServiceClient;
+        private readonly Dictionary<string, string> _containers;
+
+        public AzureFileStorageService(IOptions<FileStorageSettings> options)
         {
-            throw new NotImplementedException();
+            var settings = options.Value;
+            _blobServiceClient = new BlobServiceClient(settings.ConnectionString);
+            _containers = settings.Containers;
         }
 
-        public Task<string> EditFileAsync(string existingFilePath, Stream stream, string fileName)
+        public async Task DeleteFileAsync(string filePath, string container)
         {
-            throw new NotImplementedException();
+            var containerName = GetContainerName(container);
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+            var fileName = Path.GetFileName(filePath);
+            var blobClient = containerClient.GetBlobClient(fileName);
+            await blobClient.DeleteIfExistsAsync();
         }
 
-        public Task<string> SaveFileAsync(Stream stream, string fileName)
+        public async Task<string> EditFileAsync(string existingFilePath, Stream stream, string fileName, string container)
         {
-            throw new NotImplementedException();
+            await DeleteFileAsync(existingFilePath, container);
+            return await SaveFileAsync(stream, fileName, container);
+        }
+
+        public async Task<string> SaveFileAsync(Stream stream, string fileName, string container)
+        {
+            var containerName = GetContainerName(container);
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+            await containerClient.CreateIfNotExistsAsync();
+            
+            var extension = Path.GetExtension(fileName);
+            var blobName = $"{Guid.NewGuid()}{extension}";
+            var blobClient = containerClient.GetBlobClient(blobName);
+            stream.Position = 0;
+            await blobClient.UploadAsync(stream, overwrite: true);
+            
+            return blobClient.Uri.ToString();
+        }
+
+        public async Task UploadFromFilePathAsync(string localFilePath, string fileName, string container)
+        {
+            using var fs = File.OpenRead(localFilePath);
+            await SaveFileAsync(fs, fileName, container);
+        }
+
+        private string GetContainerName(string containerKey)
+        {
+            if (_containers.TryGetValue(containerKey, out var containerName))
+            {
+                return containerName;
+            }
+            throw new ArgumentException($"Container with key '{containerKey}' not configured.");
         }
     }
 }

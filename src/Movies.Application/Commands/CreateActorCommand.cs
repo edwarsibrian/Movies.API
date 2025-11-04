@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Movies.Application.DTOs;
 
 namespace Movies.Application.Commands
 {
@@ -6,5 +7,5 @@ namespace Movies.Application.Commands
         string Name,
         DateTime DateOfBirth,
         string? Picture
-        ) : IRequest<int>;
+        ) : IRequest<ActorDTO>;
 }

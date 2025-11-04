@@ -2,6 +2,6 @@
 {
     public class MovieApiSettings
     {
-        public string AllowedHosts { get; set; }
+        public string AllowedHosts { get; set; } = null!;
     }
 }

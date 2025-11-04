@@ -7,7 +7,7 @@ using Movies.Repository.Implementations;
 
 namespace Movies.Repository.Configurations
 {
-    public static class DependencyInjection
+    public static class RepositoryServiceRegistration
     {
         public static IServiceCollection AddRepositories(this IServiceCollection services, IConfiguration configuration)
         {
@@ -18,7 +18,8 @@ namespace Movies.Repository.Configurations
 
             // Repositories
             services.AddScoped<IGenreRepository, GenreRepository>();
-            
+            services.AddScoped<IActorRepository, ActorRepository>();
+
             return services;
         }
     }

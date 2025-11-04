@@ -18,6 +18,7 @@ namespace Movies.Application.Configurations
             //    .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.GenreName));
             //CreateMap<GenreDTO, UpdateGenreCommand>();
             ConfigureGenreMappings();
+            ConfigureActorMappings();
 
         }
 
@@ -31,6 +32,15 @@ namespace Movies.Application.Configurations
             CreateMap<UpdateGenreCommand, Genre>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.GenreName));
             CreateMap<GenreDTO, UpdateGenreCommand>();
+        }
+
+        private void ConfigureActorMappings()
+        {
+            CreateMap<CreateActorCommand, Actor>();
+            //.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            //.ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth))
+            //.ForMember(dest => dest.PictureUrl, opt => opt.MapFrom(src => src.PictureUrl));
+            CreateMap<Actor, ActorDTO>();
         }
     }
 }

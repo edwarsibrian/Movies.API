@@ -1,21 +1,27 @@
-﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AutoMapper;
+using MediatR;
+using Movies.Application.DTOs;
+using Movies.Domain.Common.Interfaces;
+using Movies.Domain.Entities;
 
 namespace Movies.Application.Commands.Handlers
 {
-    public class CreateActorHandler : IRequestHandler<CreateActorCommand, int>
+    public class CreateActorHandler : IRequestHandler<CreateActorCommand, ActorDTO>
     {
-        public CreateActorHandler()
+        private readonly IActorRepository repository;
+        private readonly IMapper mapper;
+
+        public CreateActorHandler(IActorRepository repository, IMapper mapper)
         {
+            this.repository = repository;
+            this.mapper = mapper;
         }
 
-        public Task<int> Handle(CreateActorCommand request, CancellationToken cancellationToken)
+        public async Task<ActorDTO> Handle(CreateActorCommand request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var actor = mapper.Map<Actor>(request);
+            await repository.CreateAsync(actor, cancellationToken);
+            return mapper.Map<ActorDTO>(actor);
         }
     }
 }

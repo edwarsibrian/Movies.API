@@ -6,7 +6,7 @@ namespace Movies.Repository.Context
 {
     public class APIMovieDbContext : DbContext
     {
-        public APIMovieDbContext(DbContextOptions options) : base(options)
+        public APIMovieDbContext(DbContextOptions<APIMovieDbContext> options) : base(options)
         {
         }
 

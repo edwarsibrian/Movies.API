@@ -37,9 +37,8 @@ namespace Movies.API.Configurations
             services.AddApplication();
 
             // Infrastructure
-            services.AddInfrastructure(configuration);
-                        
-            // Services
+            services.AddInfrastructure(configuration);                      
+
             return services;
         }
 
