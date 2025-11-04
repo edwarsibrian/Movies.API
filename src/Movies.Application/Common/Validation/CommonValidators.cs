@@ -1,4 +1,4 @@
-﻿namespace Movies.Application.Common.Validators
+﻿namespace Movies.Application.Common.Validation
 {
     public static class CommonValidators
     {

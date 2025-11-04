@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
 using Movies.API.Settings;
-using Movies.Infrastructure.Configurations;
 using Movies.Application.Configurations;
-using Movies.Repository.Configurations;
+using Movies.Infrastructure.Configurations;
+
 
 namespace Movies.API.Configurations
 {
@@ -37,12 +37,8 @@ namespace Movies.API.Configurations
             services.AddApplication();
 
             // Infrastructure
-            services.AddInfrastructure(configuration);
+            services.AddInfrastructure(configuration);                      
 
-            // Repositories
-            services.AddRepositories();
-
-            // Services
             return services;
         }
 

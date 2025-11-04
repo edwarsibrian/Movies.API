@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace Movies.Application.Configurations
 {
-    public static class DependencyInjection
+    public static class ApplicationServiceRegistration
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {

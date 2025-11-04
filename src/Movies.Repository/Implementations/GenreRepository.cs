@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Movies.Domain.Common.Interfaces;
 using Movies.Domain.Entities;
-using Movies.Infrastructure.Context;
+using Movies.Repository.Context;
 
 namespace Movies.Repository.Implementations
 {
