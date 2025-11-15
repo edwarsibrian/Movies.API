@@ -47,10 +47,10 @@ namespace Movies.Infrastructure.Services.FileStorages
             return blobClient.Uri.ToString();
         }
 
-        public async Task UploadFromFilePathAsync(string localFilePath, string fileName, string container)
+        public async Task<string> UploadFromFilePathAsync(string localFilePath, string fileName, string container)
         {
             using var fs = File.OpenRead(localFilePath);
-            await SaveFileAsync(fs, fileName, container);
+            return await SaveFileAsync(fs, fileName, container);
         }
 
         private string GetContainerName(string containerKey)

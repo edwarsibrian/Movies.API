@@ -16,11 +16,11 @@ namespace Movies.Infrastructure.Configurations
             services.Configure<FileStorageSettings>(configuration.GetSection("FileStorageSettings"));
             services.Configure<SyncSettings>(configuration.GetSection("SyncSettings"));
 
-            services.AddSingleton<AzureFileStorageService>();
-            services.AddSingleton<LocalFileStorageService>();
+            services.AddTransient<AzureFileStorageService>();
+            services.AddTransient<LocalFileStorageService>();
 
             //Register decorator Fallback with IFileStorageService
-            services.AddSingleton<IFileStorageService, FallbackFileStorageService>();
+            services.AddTransient<IFileStorageService, FallbackFileStorageService>();
 
             //Register Hosted Services of sinchronization
             services.AddHostedService<SyncHostedService>();
