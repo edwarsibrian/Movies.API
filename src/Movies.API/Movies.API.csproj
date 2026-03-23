@@ -25,4 +25,8 @@
     <ProjectReference Include="..\Movies.Infrastructure\Movies.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>

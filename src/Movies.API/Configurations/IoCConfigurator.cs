@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
+using Movies.API.Providers;
 using Movies.API.Settings;
 using Movies.Application.Configurations;
+using Movies.Application.Interfaces;
 using Movies.Infrastructure.Configurations;
 
 
@@ -32,6 +34,9 @@ namespace Movies.API.Configurations
             {
                 opt.DefaultExpirationTimeSpan = TimeSpan.FromSeconds(60);
             });
+
+            // Add provider services
+            services.AddSingleton<IWebRootPathProvider, WebRootPathProvider>();
 
             // Application
             services.AddApplication();
