@@ -14,7 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDependencies(builder.Configuration);
+builder.Services.AddApi(builder.Configuration);
 
 // Health Checks: Azure Blob Storage
 var azureConn = builder.Configuration.GetSection("FileStorageSettings")["ConnectionString"];

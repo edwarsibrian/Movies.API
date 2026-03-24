@@ -27,44 +27,37 @@ namespace Movies.Infrastructure.Services.FileStorages
 
         public async Task<string> EditFileAsync(string existingFilePath, Stream stream, string fileName, string container)
         {
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            
+            memoryStream.Position = 0;
+
             try
             {
-                using var memoryStream = new MemoryStream();
-                await stream.CopyToAsync(memoryStream);
-                memoryStream.Position = 0;
-                var url = await _azure.EditFileAsync(existingFilePath, memoryStream, fileName, container);
-                return url;
+                return await _azure.EditFileAsync(existingFilePath, memoryStream, fileName, container);
             }
             catch
             {
-                if (stream.CanSeek)
-                {
-                    stream.Position = 0;
-                }
+                memoryStream.Position = 0;
                 return await _local.EditFileAsync(existingFilePath, stream, fileName, container);
             }
         }
 
         public async Task<string> SaveFileAsync(Stream stream, string fileName, string container)
         {
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            
+            memoryStream.Position = 0;
+
             // Try to save to Azure first, if it fails, save to local
             try
-            {
-                //Copy the stream to avoid issues with disposed streams
-                using var memoryStream = new MemoryStream();
-                await stream.CopyToAsync(memoryStream);
-                memoryStream.Position = 0;
-
-                var url = await _azure.SaveFileAsync(memoryStream, fileName, container);
-                return url;
+            {              
+                return await _azure.SaveFileAsync(memoryStream, fileName, container);
             }
             catch
             {
-                //Rewind original stream if possible and save to local
-                if (stream.CanSeek)
-                {
-                    stream.Position = 0;
-                }
+                memoryStream.Position = 0;
                 return await _local.SaveFileAsync(stream, fileName, container);
             }
         }
