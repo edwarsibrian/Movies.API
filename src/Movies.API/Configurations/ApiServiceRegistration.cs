@@ -1,4 +1,5 @@
-﻿using Movies.API.Providers;
+﻿using Movies.API.Caching;
+using Movies.API.Providers;
 using Movies.API.Settings;
 using Movies.Application.Configurations;
 using Movies.Application.Interfaces;
@@ -35,6 +36,7 @@ namespace Movies.API.Configurations
             {
                 opt.DefaultExpirationTimeSpan = TimeSpan.FromSeconds(60);
             });
+            services.AddScoped<ICacheService, OutputCacheService>();
 
             // Providers
             services.AddSingleton<IWebRootPathProvider, WebRootPathProvider>();
