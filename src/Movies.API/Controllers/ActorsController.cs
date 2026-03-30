@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Movies.API.DTOs;
 using Movies.Application.Commands;
+using Movies.Application.Contracts.Messaging;
 using Movies.Application.Interfaces;
 
 namespace Movies.API.Controllers
@@ -12,17 +12,17 @@ namespace Movies.API.Controllers
     [ApiController]
     public class ActorsController : ControllerBase
     {
-        private readonly IOutputCacheStore outputCacheStore;
-        private readonly IMediator mediator;
-        private readonly IFileStorageService fileStorageService;
+        private readonly IOutputCacheStore _outputCacheStore;
+        private readonly IMediator _mediator;
+        private readonly IMessagePublisher _publisher;
         private readonly string _containerName = "Actors";
         private const string CacheKey = "ActorsCache";
 
-        public ActorsController(IOutputCacheStore outputCacheStore, IMediator mediator, IFileStorageService fileStorageService)
+        public ActorsController(IOutputCacheStore outputCacheStore, IMediator mediator, IMessagePublisher publisher)
         {
-            this.outputCacheStore = outputCacheStore;
-            this.mediator = mediator;
-            this.fileStorageService = fileStorageService;
+            _outputCacheStore = outputCacheStore;
+            _mediator = mediator;
+            _publisher = publisher;
         }
 
         [HttpGet("{id:int}", Name = "GetActorById")]
@@ -34,16 +34,34 @@ namespace Movies.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] CreateActorRequest request, CancellationToken cancellationToken)
         {
-            string pictureUrl = string.Empty;
+            string tempFilePath = string.Empty;
+
             if(request.Picture is not null)
             {
-                var stream = request.Picture.OpenReadStream();
-                pictureUrl = await fileStorageService.SaveFileAsync(stream, request.Picture.FileName, _containerName);
+                var fileName = $"{Guid.NewGuid()}_{request.Picture.FileName}";
+                tempFilePath = Path.Combine("temp", fileName);
+
+                Directory.CreateDirectory("temp");
+                
+                using var stream = new FileStream(tempFilePath, FileMode.Create);
+                await request.Picture.CopyToAsync(stream, cancellationToken);
             }
 
-            var command = new CreateActorCommand(request.ActorName, request.BirthDate, pictureUrl);
-            var actor = await mediator.Send(command, cancellationToken);
-            await outputCacheStore.EvictByTagAsync(CacheKey, cancellationToken);
+            var command = new CreateActorCommand(request.ActorName, request.BirthDate, null);
+            var actor = await _mediator.Send(command, cancellationToken);
+
+            if(!string.IsNullOrEmpty(tempFilePath))
+            {
+                await _publisher.PublishAsync(new ActorFileMessage
+                {
+                    ActorId = actor.Id,
+                    FilePath = tempFilePath,
+                    FileName = Path.GetFileName(tempFilePath),
+                    ContainerName = _containerName
+                }, QueueNames.ActorImageUploadQueue);
+            }
+
+            await _outputCacheStore.EvictByTagAsync(CacheKey, cancellationToken);
             return CreatedAtRoute("GetActorById", new { id = actor.Id }, actor);
         }
     }

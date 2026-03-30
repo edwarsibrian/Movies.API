@@ -13,7 +13,7 @@ namespace Movies.Infrastructure.Services
     public class SyncHostedService : BackgroundService
     {
         private readonly ILogger<SyncHostedService> _logger;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly SyncSettings _syncSettings;
         private readonly FileStorageSettings _fileSettings;
         private readonly HealthCheckService _healthCheckService;
@@ -21,14 +21,14 @@ namespace Movies.Infrastructure.Services
 
         public SyncHostedService(
             ILogger<SyncHostedService> logger,
-            IServiceProvider serviceProvider,
+            IServiceScopeFactory scopeFactory,
             IOptions<SyncSettings> syncOptions,
             IOptions<FileStorageSettings> fileOptions,
             HealthCheckService healthCheckService,
             IHostEnvironment env)
         {
             _logger = logger;
-            _serviceProvider = serviceProvider;
+            _scopeFactory = scopeFactory;
             _syncSettings = syncOptions.Value;
             _fileSettings = fileOptions.Value;
             _healthCheckService = healthCheckService;
@@ -114,7 +114,7 @@ namespace Movies.Infrastructure.Services
                 try
                 {
                     string pictureUrl = string.Empty;
-                    using var scope = _serviceProvider.CreateScope();
+                    using var scope = _scopeFactory.CreateScope();
                     var storageService = scope.ServiceProvider.GetRequiredService<AzureFileStorageService>();
                     pictureUrl = await storageService.UploadFromFilePathAsync(localPath, fileName, containerKey);
 

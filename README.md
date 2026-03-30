@@ -7,32 +7,31 @@ This solution follows a **Clean Architecture / Onion Architecture** approach wit
 - **Movies.API (Presentation Layer)**  
   - ASP.NET Core Web API project.
   - Handles HTTP requests and responses.
-  - Registers middlewares (exception handling, CORS, caching, authentication, etc.).
+  - Registers middlewares (exception handling, CORS, caching, etc.).
   - Configures Dependency Injection.
+  - Exposes HealthCheck endpoints and UI.
   - Maps endpoints to MediatR commands/queries.
 
 - **Application Layer**  
   - Contains business use cases and application logic.
-  - Uses **CQRS** with **MediatR** to handle commands and queries.
-  - Integrates **FluentValidation** for input validation.
-  - Uses **DTOs** and **mappings** via **AutoMapper**.
-  - Never directly accesses the database.
+  - Uses **CQRS** with **MediatR**.
+  - Integrates **FluentValidation**.
+  - Uses **DTOs** and **AutoMapper**.
 
 - **Domain Layer**  
-  - Contains the core business model and rules.
-  - Defines **entities**, **value objects**, and **domain services**.
-  - Contains business logic methods.
-  - Independent of frameworks and external libraries.
+  - Core business logic, entities, and rules.
+  - Independent of frameworks.
 
 - **Repository Layer**  
-  - Defines repository interfaces and EF Core entity mappings (Configurations).
-  - Contains concrete implementations for database access.
-  - Works with **DbSet<TEntity>** for CRUD operations.
+  - Data access abstractions and implementations.
 
 - **Infrastructure Layer**  
-  - Handles technical concerns (persistence, external services, configuration).
-  - Contains the **DbContext** and **EF Core migrations**.
-  - Registers repositories and other infrastructure services in DI.
+  - External services:
+    - Entity Framework Core
+    - Azure Blob Storage
+    - RabbitMQ
+    - Polly (resilience)
+    - HealthChecks
 
 ---
 
@@ -41,108 +40,136 @@ This solution follows a **Clean Architecture / Onion Architecture** approach wit
 ```mermaid
 graph TD
     A["Movies.API (Controllers)"] -->|Sends Command/Query| B["Application Layer"]
-    B -->|Uses Entities & Business Rules| C["Domain Layer"]
+    B -->|Uses Business Rules| C["Domain Layer"]
     B -->|Requests Data| D["Repository Layer"]
     D -->|Implemented with| E["Infrastructure Layer"]
-    E -->|Provides DbContext & Migrations| D
-
 ```
 
 ---
 
-## Dependency Injection Setup
+## Running the Project
 
-- **Movies.API**  
-  - Registers middlewares.
-  - Adds AutoMapper profiles from Application.
-  - Adds MediatR handlers from Application.
-  - Adds FluentValidation validators from Application.
-  - Calls extension methods from Infrastructure and Repository for service registration.
+### 1. Configure settings
 
-- **Repository**  
-  - Provides `AddRepositories(IServiceCollection)` extension method.
-  - Registers repository implementations with their interfaces.
+Copy example config:
 
-- **Infrastructure**  
-  - Provides `AddInfrastructure(IServiceCollection, IConfiguration)` extension method.
-  - Registers `DbContext`, migrations, and persistence configurations.
+```bash
+cp appsettings.Example.json appsettings.Development.json
+```
+
+Update values:
+
+- Database connection
+- Azure Storage connection string
+- RabbitMQ credentials
 
 ---
 
-## AutoMapper
+### 2. Run RabbitMQ (Docker)
 
-- Installed in **Application**.
-- Profiles are defined in the Application layer.
-- Registered in `Program.cs` of Movies.API:
+A `docker-compose.yaml` file is included.
+
+Update credentials:
+
+```yaml
+environment:
+  RABBITMQ_DEFAULT_USER: your_username
+  RABBITMQ_DEFAULT_PASS: your_password
+```
+
+Run container:
+
+```bash
+docker-compose up -d
+```
+
+RabbitMQ will be available at:
+
+- UI → http://localhost:15672
+- AMQP → localhost:5672
+
+---
+
+### 3. Run the API
+
+```bash
+dotnet run
+```
+
+---
+
+## Health Checks
+
+Health checks monitor external dependencies:
+
+- Azure Blob Storage
+- RabbitMQ
+
+### Endpoints
+
+- `/health` → JSON status
+- `/health-ui` → Dashboard UI
+
+---
+
+## RabbitMQ Integration
+
+- Uses async API (`RabbitMQ.Client`)
+- Configured via `RabbitMqSettings`
 
 ```csharp
-builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MapperConfig>());
+services.AddSingleton<ConnectionFactory>(...);
+services.AddSingleton<IMessagePublisher, RabbitMqPublisher>();
 ```
 
 ---
 
-## MediatR
-
-- Installed in **Application**.
-- Commands and Queries defined as **records** for immutability.
-- Handlers implemented in Application.
-- Registered in `Program.cs`:
+## Polly (Resilience)
 
 ```csharp
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+services.AddSingleton<IAsyncPolicy>(RetryPolicies.DefaultRetry);
 ```
+
+Used for retry handling in external services.
 
 ---
 
-## FluentValidation
+## Azure Blob Storage
 
-- Validators live in **Application**.
-- Registered via reflection scanning:
+Supports multiple containers:
 
-```csharp
-builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+```json
+"Containers": {
+  "Movies": "movies",
+  "Actors": "actors"
+}
 ```
 
-- Integrated with MediatR pipeline to validate before executing handlers.
+Recommended:
 
----
-
-## Middlewares
-
-- **ValidationExceptionMiddleware**: catches validation errors and returns structured responses.
-- Registered early in the pipeline in Movies.API:
-
-```csharp
-app.UseMiddleware<ValidationExceptionMiddleware>();
-app.UseCors();
-app.UseOutputCache();
-app.UseAuthentication();
-app.UseAuthorization();
+```json
+"HealthCheckContainer": "movies"
 ```
-
----
-
-## Example Flow: Create User
-
-1. **API Controller** receives `POST /users` request.
-2. Maps request body to `CreateUserCommand`.
-3. MediatR sends command to its handler.
-4. Handler applies business rules (Domain).
-5. Handler uses repository interface to persist data.
-6. Infrastructure executes EF Core save via DbContext.
-7. Response returned as DTO to API.
 
 ---
 
 ## Technologies Used
 
-- **ASP.NET Core Web API** (Presentation)
-- **Entity Framework Core** (Persistence)
-- **MediatR** (CQRS + Mediator pattern)
-- **FluentValidation** (Validation)
-- **AutoMapper** (Object mapping)
-- **Dependency Injection** (Microsoft.Extensions.DependencyInjection)
-
+- ASP.NET Core Web API
+- Entity Framework Core
+- MediatR
+- FluentValidation
+- AutoMapper
+- RabbitMQ
+- Azure Blob Storage
+- Polly
+- HealthChecks
+- Docker
 
 ---
 
+## Observability & Reliability
+
+- Health checks for external services
+- Retry policies with Polly
+- Background processing with RabbitMQ
