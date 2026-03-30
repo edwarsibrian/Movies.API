@@ -3,7 +3,6 @@ using Microsoft.Extensions.Options;
 using Movies.Application.Interfaces;
 using Movies.Infrastructure.Settings;
 using Polly;
-using Polly.Retry;
 
 namespace Movies.Infrastructure.Services.FileStorages
 {
