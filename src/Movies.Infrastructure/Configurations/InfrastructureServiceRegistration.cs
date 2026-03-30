@@ -1,8 +1,10 @@
 ﻿using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Movies.Application.Interfaces;
+using Movies.Infrastructure.HealthCheck;
 using Movies.Infrastructure.Messaging;
 using Movies.Infrastructure.Messaging.Consumers;
 using Movies.Infrastructure.Services;
@@ -59,6 +61,27 @@ namespace Movies.Infrastructure.Configurations
                 };
             });
             services.AddSingleton<IMessagePublisher, RabbitMqPublisher>();
+
+            // ----------------------------
+            // Health Checks (Infra)
+            // ----------------------------
+            var fileSettings = configuration.GetSection("FileStorageSettings").Get<FileStorageSettings>();
+
+            services.AddHealthChecks()
+                // Azure Blob
+                .AddAzureBlobStorage(
+                    connectionString: fileSettings.ConnectionString,
+                    containerName: fileSettings.HealthCheckContainer,
+                    name: "Azure Blob Storage",
+                    failureStatus: HealthStatus.Degraded,
+                    tags: new[] { "storage", "azure" }
+                )
+                // RabbitMQ 
+                .AddCheck<RabbitMqHealthCheck>(
+                    "RabbitMQ",
+                    failureStatus: HealthStatus.Unhealthy,
+                    tags: new[] { "messaging", "rabbitmq" }
+                );
 
             // ----------------------------
             // File Storage Services

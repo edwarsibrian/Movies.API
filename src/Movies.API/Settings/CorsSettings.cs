@@ -2,6 +2,6 @@
 {
     public class CorsSettings
     {
-        public string AllowedOrigins { get; set; } = null!;
+        public string[] AllowedOrigins { get; set; } = Array.Empty<string>();
     }
 }

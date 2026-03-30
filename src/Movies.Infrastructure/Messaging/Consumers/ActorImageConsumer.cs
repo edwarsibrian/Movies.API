@@ -13,18 +13,15 @@ namespace Movies.Infrastructure.Messaging.Consumers
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ConnectionFactory _factory;
-        private readonly ICacheService _cacheService;
-        
+                
         private const string CacheKey = "ActorsCache";
 
         public ActorImageConsumer(
             IServiceScopeFactory scopeFactory,  
-            ConnectionFactory factory, 
-            ICacheService cacheService)
+            ConnectionFactory factory)
         {
             _scopeFactory = scopeFactory;
             _factory = factory;
-            _cacheService = cacheService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -45,8 +42,9 @@ namespace Movies.Infrastructure.Messaging.Consumers
             {
                 using var scope = _scopeFactory.CreateScope();
 
-                var _fileStorageService = scope.ServiceProvider.GetRequiredService<IFileStorageService>();
-                var _actorRepository = scope.ServiceProvider.GetRequiredService<IActorRepository>();
+                var fileStorageService = scope.ServiceProvider.GetRequiredService<IFileStorageService>();
+                var actorRepository = scope.ServiceProvider.GetRequiredService<IActorRepository>();
+                var cacheService = scope.ServiceProvider.GetRequiredService<ICacheService>();
 
                 var message = JsonSerializer.Deserialize<ActorFileMessage>(ea.Body.ToArray());
 
@@ -65,24 +63,24 @@ namespace Movies.Infrastructure.Messaging.Consumers
                         case FileAction.Create:
                             using (var stream = File.OpenRead(message.FilePath))
                             {
-                                var url = await _fileStorageService.SaveFileAsync(
+                                var url = await fileStorageService.SaveFileAsync(
                                     stream, message.FileName, message.ContainerName);
 
-                                await _actorRepository.UpdatePictureAsync(message.ActorId, url, stoppingToken);
-                                await _cacheService.EvictByTagAsync(CacheKey, CancellationToken.None);
+                                await actorRepository.UpdatePictureAsync(message.ActorId, url, stoppingToken);
+                                await cacheService.EvictByTagAsync(CacheKey, CancellationToken.None);
                             }
                             break;
                         case FileAction.Edit:
                             using (var stream = File.OpenRead(message.FilePath))
                             {
-                                var url = await _fileStorageService.EditFileAsync(
+                                var url = await fileStorageService.EditFileAsync(
                                     message.ExistingFilePath,
                                     stream,
                                     message.FileName,
                                     message.ContainerName);
 
-                                await _actorRepository.UpdatePictureAsync(message.ActorId, url, stoppingToken);
-                                await _cacheService.EvictByTagAsync(CacheKey, CancellationToken.None);
+                                await actorRepository.UpdatePictureAsync(message.ActorId, url, stoppingToken);
+                                await cacheService.EvictByTagAsync(CacheKey, CancellationToken.None);
                             }
                             break;
                         case FileAction.Delete:

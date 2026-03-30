@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.AzureStorage" Version="7.0.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="9.0.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.26.0" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.10" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.10" />

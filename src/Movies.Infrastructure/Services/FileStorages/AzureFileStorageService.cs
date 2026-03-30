@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Movies.Application.Interfaces;
 using Movies.Infrastructure.Settings;
+using Polly;
 using Polly.Retry;
 
 namespace Movies.Infrastructure.Services.FileStorages
@@ -9,12 +10,12 @@ namespace Movies.Infrastructure.Services.FileStorages
     public class AzureFileStorageService : IFileStorageService
     {
         private readonly BlobServiceClient _blobServiceClient;
-        private readonly AsyncRetryPolicy _retryPolicy;
+        private readonly IAsyncPolicy _retryPolicy;
         private readonly Dictionary<string, string> _containers;
 
         public AzureFileStorageService(
             BlobServiceClient blobServiceClient,
-            AsyncRetryPolicy retryPolicy,
+            IAsyncPolicy retryPolicy,
             IOptions<FileStorageSettings> options)
         {
             _blobServiceClient = blobServiceClient;
