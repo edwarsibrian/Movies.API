@@ -2,11 +2,18 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Movies.API.Configurations;
 using Movies.API.Middlewares;
+using Serilog;
+
+//Serilog.Debugging.SelfLog.Enable(msg => Console.WriteLine(msg));
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+//Configure Serilog
+builder.Host.UseSerilog((context, services, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration)
+);
 
+// Services
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddEndpointsApiExplorer();
@@ -23,15 +30,14 @@ builder.Services.AddHealthChecksUI(options =>
 
 var app = builder.Build();
 
-// Map health endpoints
-app.MapHealthChecks("/health", new HealthCheckOptions
+// Logging request
+app.UseSerilogRequestLogging(options =>
 {
-    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-});
-
-app.MapHealthChecksUI(options =>
-{
-    options.UIPath = "/health-ui"; // Dashboard
+    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+    {
+        diagnosticContext.Set("UserAgent", httpContext.Request.Headers["User-Agent"]);
+        diagnosticContext.Set("ClientIP", httpContext.Connection.RemoteIpAddress);
+    };
 });
 
 // Configure the HTTP request pipeline.
@@ -52,6 +58,17 @@ app.UseOutputCache();
 app.UseMiddleware<ValidationExceptionMiddleware>();
 
 app.UseAuthorization();
+
+// Endpoints
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+app.MapHealthChecksUI(options =>
+{
+    options.UIPath = "/health-ui"; // Dashboard
+});
 
 app.MapControllers();
 
