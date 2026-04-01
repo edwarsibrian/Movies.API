@@ -47,7 +47,7 @@ namespace Movies.Infrastructure.Services
             {
                 try
                 {
-                    // Revisa healthchecks - filtramos por nombre o tag
+                    // Check out healthchecks - filter by name or tag
                     var report = await _healthCheckService.CheckHealthAsync(st => st.Tags.Contains("azure") || st.Name == "Azure Blob Storage", stoppingToken);
 
                     if (report.Status == HealthStatus.Healthy)

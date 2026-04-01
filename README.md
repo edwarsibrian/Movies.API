@@ -153,6 +153,87 @@ Recommended:
 
 ---
 
+## Logging (Elasticsearch + Kibana)
+
+This project implements centralized logging using **Serilog** with **Elasticsearch** and **Kibana**.
+
+### Run with Docker (Recommended)
+
+Start all services:
+
+```bash
+docker-compose up -d
+```
+
+Services:
+
+- API: http://localhost:<port>
+- Elasticsearch: http://localhost:9200
+- Kibana: http://localhost:5601
+
+When running in Docker, the API connects using:
+
+```
+http://elasticsearch:9200
+```
+
+This works due to Docker internal networking.
+
+---
+
+### Run API Locally (without Docker)
+
+If you run the API using:
+
+```bash
+dotnet run
+```
+
+You must update `appsettings.json`:
+
+```json
+"nodeUris": "http://localhost:9200"
+```
+
+Because `elasticsearch` is not resolvable outside Docker.
+
+---
+
+### Kibana Setup
+
+1. Open: http://localhost:5601
+2. Go to **Stack Management → Index Patterns**
+3. Create pattern:
+
+```
+movies-api-logs*
+```
+
+4. Go to **Discover** to view logs.
+
+---
+
+### Logging Features
+
+- Structured logging (JSON)
+- Request logging (method, path, status code, duration)
+- Centralized log storage
+- Easy filtering and debugging
+
+---
+
+### Configuration
+
+Logging is configured in:
+
+```
+appsettings.json
+```
+
+It can be overridden using environment variables when running in Docker.
+
+---
+
 ## Technologies Used
 
 - ASP.NET Core Web API
@@ -173,3 +254,4 @@ Recommended:
 - Health checks for external services
 - Retry policies with Polly
 - Background processing with RabbitMQ
+
