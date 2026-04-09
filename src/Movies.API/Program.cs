@@ -55,7 +55,7 @@ app.UseCors();
 
 app.UseOutputCache();
 
-app.UseMiddleware<ValidationExceptionMiddleware>();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseAuthorization();
 
